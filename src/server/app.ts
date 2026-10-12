@@ -1,6 +1,7 @@
 import express from "express";
 import {
   CONFIDENCE_THRESHOLD,
+  PROVIDER_LABELS,
   RUBRIC_VERSION,
   reviewSchema,
 } from "../shared/schema.js";
@@ -44,18 +45,17 @@ export function createApp(provider: Provider) {
       provider: provider.identity,
       rubricVersion: RUBRIC_VERSION,
       threshold: CONFIDENCE_THRESHOLD,
-      externalTransmission: provider.identity.mode === "typesafe",
+      externalTransmission: provider.identity.mode !== "simulated",
     }),
   );
   let active = false;
   app.post("/api/reviews", async (req, res) => {
     if (
-      provider.identity.mode === "typesafe" &&
+      provider.identity.mode !== "simulated" &&
       req.headers["x-briefcheck-live-consent"] !== "1"
     ) {
       res.status(403).json({
-        error:
-          "Confirm this review may send copy and approved evidence to TypeSafe and incur API charges.",
+        error: `Confirm this review may send copy and approved evidence to ${PROVIDER_LABELS[provider.identity.mode]} and incur API charges.`,
       });
       return;
     }

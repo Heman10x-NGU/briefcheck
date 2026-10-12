@@ -1,8 +1,10 @@
-# Evaluation protocol (not yet executed with Jev)
+# Evaluation protocol (not yet executed with a live model)
 
 ## Evidence available now
 
 The deterministic and HTTP-contract test suites run locally. The simulator's four synthetic cases are demonstration and development cases. They do not establish semantic accuracy, calibration, production latency, user outcomes, or dollar savings.
+
+On 2026-10-13, one live SubQ Snap request using the existing invented-result fixture succeeded. Its [recorded response](subq-smoke-2026-10-13.json) is a connection smoke check only. The response classified support as contradicted, scope as expanded, and tone as misaligned. No independent human label set or comparison with Jev was used. The 0.72 routing threshold has not been tuned for SubQ, and the preview model identifier may change behavior over time.
 
 ## Before tuning or shipping
 
@@ -21,4 +23,4 @@ The deterministic and HTTP-contract test suites run locally. The simulator's fou
 - Report the confusion matrix and raw numerator/denominator with every rate. Record median and p95 end-to-end latency and reported input tokens only from actual runs.
 - Stratify results by claim type, language, missing/conflicting evidence and adversarial content. Inspect every false clear. Confidence is not a factuality probability; any calibration study must define its event precisely.
 
-No holdout corpus, live-provider results, or performance numbers have been fabricated for this prototype. `npm run eval:live -- --confirm-live-costs` is an opt-in four-case transport/workflow smoke check, not this evaluation protocol.
+No holdout corpus or accuracy results have been produced for this prototype. `npm run eval:live -- --confirm-live-costs` is an opt-in four-case transport/workflow smoke check for the configured provider, not this evaluation protocol. Apply the same frozen-data procedure to SubQ before comparing it with Jev or making accuracy claims.

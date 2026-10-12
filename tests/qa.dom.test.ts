@@ -7,6 +7,7 @@ import { App } from "../src/client/App.js";
 import { fixtures } from "../src/shared/fixtures.js";
 import {
   CONFIDENCE_THRESHOLD,
+  PROVIDER_MODELS,
   RUBRIC_VERSION,
   type Report,
 } from "../src/shared/schema.js";
@@ -93,7 +94,7 @@ describe("Independent DOM-emulated user flows", () => {
     await mount();
     expect(text()).toContain("SIMULATED DEMO");
     expect(text()).toContain("No key needed");
-    expect(text()).toContain("don’t measure Jev’s accuracy");
+    expect(text()).toContain("don’t measure real-model accuracy");
     expect(button("Run simulated review").disabled).toBe(false);
     await run();
     expect(text()).toContain("SIMULATED RESULT");
@@ -276,17 +277,26 @@ describe("Independent DOM-emulated user flows", () => {
       expect(button("Run simulated review").disabled).toBe(false);
     },
   );
-  it("requires fresh consent for live mode and does not silently send data", async () => {
+  it.each([
+    ["typesafe", "jev-1.13.0", "TypeSafe"],
+    ["subq", "subq-snap-preview", "SubQ"],
+  ])("requires fresh consent for %s and does not silently send data", async (mode, model, label) => {
     const live = {
       ...config,
-      provider: { mode: "typesafe", requestedModel: "jev-1.13.0", implementation: "typesafe-rest-v1" },
+      provider: { mode: mode as keyof typeof PROVIDER_MODELS, requestedModel: model, implementation: `${mode}-rest-v1` },
       externalTransmission: true,
     };
+    const liveReport = await review(fixtures[0].input, {
+      identity: live.provider,
+      evaluate: async state => ({ ...(await provider.evaluate(state)), model }),
+    });
+    reviewReply = async () => response({ report: liveReport });
     configReply = async () => response(live);
     await mount();
-    await click("Run TypeSafe review");
+    expect(text()).toContain(`LIVE ${label.toUpperCase()} PROVIDER`);
+    await click(`Run ${label} review`);
     expect(reviewRequests()).toHaveLength(0);
-    expect(text()).toContain("Confirm the TypeSafe data transmission");
+    expect(text()).toContain(`Confirm the ${label} data transmission`);
     const consent = container.querySelector(
       'input[type="checkbox"]',
     ) as HTMLInputElement;
@@ -294,11 +304,13 @@ describe("Independent DOM-emulated user flows", () => {
       consent.click();
       await tick();
     });
-    await click("Run TypeSafe review");
+    await click(`Run ${label} review`);
     expect(reviewRequests()).toHaveLength(1);
     expect(reviewRequests()[0].init?.headers).toMatchObject({
       "X-BriefCheck-Live-Consent": "1",
     });
+    expect(text()).toContain(`${label.toUpperCase()} ADVISORY RESULT`);
+    expect(text()).toContain("Human decision: not taken");
     await fill("hero.title", "New text");
     expect(
       (container.querySelector('input[type="checkbox"]') as HTMLInputElement)

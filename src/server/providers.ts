@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
-  MODEL,
+  PROVIDER_MODELS,
+  PROVIDER_LABELS,
   type ChoiceAnswer,
   type Excerpt,
   type ProviderIdentity,
@@ -87,7 +88,7 @@ export class SimulatedProvider implements Provider {
   }
 }
 const responseSchema = z.object({
-  model: z.literal(MODEL),
+  model: z.string(),
   answers: z.record(
     z.string(),
     z.object({
@@ -102,11 +103,16 @@ const responseSchema = z.object({
     output_tokens: z.number().int().nonnegative(),
   }),
 });
-export function validateResponse(raw: unknown): ProviderResult {
+type LiveMode = "typesafe" | "subq";
+export function validateResponse(
+  raw: unknown,
+  mode: LiveMode = "typesafe",
+): ProviderResult {
+  const label = PROVIDER_LABELS[mode];
   const parsed = responseSchema.safeParse(raw);
-  if (!parsed.success)
+  if (!parsed.success || parsed.data.model !== PROVIDER_MODELS[mode])
     throw new ProviderError(
-      "TypeSafe returned a malformed response or an unexpected model.",
+      `${label} returned a malformed response or an unexpected model.`,
     );
   const result = parsed.data;
   if (
@@ -114,7 +120,7 @@ export function validateResponse(raw: unknown): ProviderResult {
     Object.keys(QUESTIONS).sort().join(",")
   )
     throw new ProviderError(
-      "TypeSafe did not return exactly the requested answers.",
+      `${label} did not return exactly the requested answers.`,
     );
   for (const [key, question] of Object.entries(QUESTIONS)) {
     const a = result.answers[key];
@@ -124,15 +130,17 @@ export function validateResponse(raw: unknown): ProviderResult {
       Object.keys(a.probabilities).sort().join(",") !== options.sort().join(",")
     )
       throw new ProviderError(
-        "TypeSafe returned an unknown choice or incomplete distribution.",
+        `${label} returned an unknown choice or incomplete distribution.`,
       );
     const sum = Object.values(a.probabilities).reduce((s, n) => s + n, 0);
     const derived =
       (Math.max(...Object.values(a.probabilities)) - 1 / options.length) /
       (1 - 1 / options.length);
-    if (Math.abs(a.confidence - derived) > 0.005)
+    // Only TypeSafe documents this formula. SubQ's confidence is retained as
+    // reported, range-checked above, and is not assumed to be comparable.
+    if (mode === "typesafe" && Math.abs(a.confidence - derived) > 0.005)
       throw new ProviderError(
-        "TypeSafe returned confidence inconsistent with its distribution.",
+        `${label} returned confidence inconsistent with its distribution.`,
       );
     if (
       Math.abs(sum - 1) > 0.001 ||
@@ -140,56 +148,74 @@ export function validateResponse(raw: unknown): ProviderResult {
         Math.max(...Object.values(a.probabilities))
     )
       throw new ProviderError(
-        "TypeSafe returned an inconsistent probability distribution.",
+        `${label} returned an inconsistent probability distribution.`,
       );
   }
   return result;
 }
-export class TypeSafeProvider implements Provider {
-  identity: ProviderIdentity = {
-    mode: "typesafe",
-    requestedModel: MODEL,
-    implementation: "typesafe-rest-v1",
-  };
+const LIVE_PROVIDERS = {
+  typesafe: {
+    endpoint: "https://api.typesafe.ai/v1/systemone",
+    keyName: "TYPESAFE_API_KEY",
+    timeoutMs: 12000,
+  },
+  subq: {
+    endpoint: "https://api.subq.ai/v1/systemone",
+    keyName: "SUBQ_API_KEY",
+    timeoutMs: 60000,
+  },
+} as const;
+class DecisionProvider implements Provider {
+  readonly identity: ProviderIdentity;
   constructor(
+    private readonly mode: LiveMode,
     private readonly key: string,
     private readonly fetcher: typeof fetch = fetch,
-    private readonly timeoutMs = 12000,
+    private readonly timeoutMs: number = LIVE_PROVIDERS[mode].timeoutMs,
   ) {
+    this.identity = {
+      mode,
+      requestedModel: PROVIDER_MODELS[mode],
+      implementation: `${mode}-rest-v1`,
+    };
     if (!key.trim())
       throw new ProviderError(
-        "TYPESAFE_API_KEY is missing. Set it on the server before enabling TypeSafe.",
+        `${LIVE_PROVIDERS[mode].keyName} is missing. Set it on the server before enabling ${PROVIDER_LABELS[mode]}.`,
       );
   }
   async evaluate(state: SemanticState): Promise<ProviderResult> {
+    const label = PROVIDER_LABELS[this.mode];
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await this.fetcher(
-        "https://api.typesafe.ai/v1/systemone",
-        {
-          method: "POST",
-          redirect: "error",
-          headers: {
-            Authorization: `Bearer ${this.key}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ model: MODEL, state, questions: QUESTIONS }),
-          signal: controller.signal,
+      const response = await this.fetcher(LIVE_PROVIDERS[this.mode].endpoint, {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          Authorization: `Bearer ${this.key}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          model: this.identity.requestedModel,
+          state,
+          questions: QUESTIONS,
+        }),
+        signal: controller.signal,
+      });
       if (!response.ok) {
         const message =
           response.status === 401 || response.status === 403
-            ? "TypeSafe authentication was rejected. Check the server key."
-            : response.status === 429
-              ? "TypeSafe rate limit reached. Retry manually later."
-              : `TypeSafe is unavailable (HTTP ${response.status}). Retry manually later.`;
+            ? `${label} authentication or model access was rejected. Check the server key and account access.`
+            : response.status === 402
+              ? `${label} account has insufficient credits. Check your API console.`
+              : response.status === 429
+                ? `${label} rate limit reached. Retry manually later.`
+                : `${label} is unavailable (HTTP ${response.status}). Retry manually later.`;
         throw new ProviderError(message);
       }
       // Bound provider responses and do not retain/log error bodies or headers.
       if (!response.body)
-        throw new ProviderError("TypeSafe returned an empty response.");
+        throw new ProviderError(`${label} returned an empty response.`);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let body = "";
@@ -200,7 +226,7 @@ export class TypeSafeProvider implements Provider {
         size += part.value.byteLength;
         if (size > 64000) {
           await reader.cancel();
-          throw new ProviderError("TypeSafe response exceeded the size limit.");
+          throw new ProviderError(`${label} response exceeded the size limit.`);
         }
         body += decoder.decode(part.value, { stream: true });
       }
@@ -209,18 +235,42 @@ export class TypeSafeProvider implements Provider {
       try {
         raw = JSON.parse(body);
       } catch {
-        throw new ProviderError("TypeSafe returned non-JSON content.");
+        throw new ProviderError(`${label} returned non-JSON content.`);
       }
-      return validateResponse(raw);
+      return validateResponse(raw, this.mode);
     } catch (error) {
       if (error instanceof ProviderError) throw error;
       throw new ProviderError(
         controller.signal.aborted
-          ? "TypeSafe request timed out. Retry manually."
-          : "TypeSafe could not be reached. Check connectivity and retry manually.",
+          ? `${label} request timed out. Retry manually.`
+          : `${label} could not be reached. Check connectivity and retry manually.`,
       );
     } finally {
       clearTimeout(timer);
     }
+  }
+}
+export class TypeSafeProvider extends DecisionProvider {
+  constructor(key: string, fetcher: typeof fetch = fetch, timeoutMs = 12000) {
+    super("typesafe", key, fetcher, timeoutMs);
+  }
+}
+export class SubQProvider extends DecisionProvider {
+  constructor(key: string, fetcher: typeof fetch = fetch, timeoutMs = 60000) {
+    super("subq", key, fetcher, timeoutMs);
+  }
+}
+export function createProvider(env: NodeJS.ProcessEnv = process.env): Provider {
+  switch (env.BRIEFCHECK_PROVIDER ?? "simulated") {
+    case "simulated":
+      return new SimulatedProvider();
+    case "typesafe":
+      return new TypeSafeProvider(env.TYPESAFE_API_KEY ?? "");
+    case "subq":
+      return new SubQProvider(env.SUBQ_API_KEY ?? "");
+    default:
+      throw new Error(
+        "BRIEFCHECK_PROVIDER must be simulated, typesafe or subq.",
+      );
   }
 }

@@ -12,8 +12,14 @@ reserve.listen(0, "127.0.0.1");
 await once(reserve, "listening");
 const port = reserve.address().port;
 await new Promise((resolve) => reserve.close(resolve));
-const env = { ...process.env, PORT: String(port), TYPESAFE_API_KEY: sentinel };
-delete env.BRIEFCHECK_PROVIDER;
+// Override a developer's live .env so this test can never use real credentials.
+const env = {
+  ...process.env,
+  PORT: String(port),
+  BRIEFCHECK_PROVIDER: "simulated",
+  TYPESAFE_API_KEY: sentinel,
+  SUBQ_API_KEY: sentinel,
+};
 const child = spawn("npm", ["start"], {
   env,
   stdio: ["ignore", "pipe", "pipe"],
@@ -54,7 +60,7 @@ try {
   assert.equal(config.externalTransmission, false);
   assert.ok(!configText.includes(sentinel));
   console.log(
-    "PASS npm start defaults to simulation even with a server-only fake key present",
+    "PASS npm start uses explicit simulation with server-only fake keys present",
   );
   const home = await fetch(base);
   assert.equal(home.status, 200);
