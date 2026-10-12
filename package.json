@@ -1,0 +1,44 @@
+{
+  "name": "briefcheck",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Source-grounded advisory review of agency website copy before human approval.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --watch --import tsx src/server/index.ts --dev",
+    "build": "vite build && tsc -p tsconfig.server.json",
+    "start": "node --env-file-if-exists=.env dist/server/server/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm test && npm run build",
+    "eval:live": "node --env-file-if-exists=.env --import tsx scripts/live-eval.ts",
+    "format": "prettier --write src integration scripts",
+    "format:check": "prettier --check src integration scripts"
+  },
+  "dependencies": {
+    "express": "5.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.5",
+    "@types/jsdom": "27.0.0",
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@types/supertest": "6.0.3",
+    "@vitejs/plugin-react": "5.1.0",
+    "jsdom": "27.0.1",
+    "prettier": "3.6.2",
+    "supertest": "7.1.4",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "4.1.11"
+  }
+}
