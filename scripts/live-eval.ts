@@ -1,14 +1,16 @@
 import { fixtures } from "../src/shared/fixtures.js";
 import { reviewSchema } from "../src/shared/schema.js";
-import { TypeSafeProvider } from "../src/server/providers.js";
+import { createProvider } from "../src/server/providers.js";
 import { review } from "../src/server/review.js";
 if (!process.argv.includes("--confirm-live-costs"))
   throw new Error(
-    "Not run: add --confirm-live-costs only after authorizing TypeSafe transmission and API charges.",
+    "Not run: add --confirm-live-costs only after authorizing transmission to the selected provider and API charges.",
   );
-if (process.env.BRIEFCHECK_PROVIDER !== "typesafe")
-  throw new Error("Not run: explicitly set BRIEFCHECK_PROVIDER=typesafe.");
-const provider = new TypeSafeProvider(process.env.TYPESAFE_API_KEY ?? "");
+if (!["typesafe", "subq"].includes(process.env.BRIEFCHECK_PROVIDER ?? ""))
+  throw new Error(
+    "Not run: explicitly set BRIEFCHECK_PROVIDER=typesafe or subq.",
+  );
+const provider = createProvider();
 console.log(
   "Opt-in synthetic fixture smoke evaluation. This is not an accuracy benchmark. At most four sequential API requests; no retries.",
 );

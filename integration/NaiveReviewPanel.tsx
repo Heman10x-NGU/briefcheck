@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   canonical,
   REASONS,
+  PROVIDER_LABELS,
   type ProviderIdentity,
   type Report,
   type ReviewInput,
@@ -23,6 +24,7 @@ export interface PanelProps {
 }
 /** Advisory-only slot placed above the existing Approve/Reject controls. Never sends a decision. */
 export function NaiveReviewPanel({ prepared, config, load }: PanelProps) {
+  const providerLabel = PROVIDER_LABELS[config.provider.mode];
   const identity = canonical({ prepared, config });
   const generation = useRef(0);
   const inFlight = useRef(false);
@@ -54,9 +56,9 @@ export function NaiveReviewPanel({ prepared, config, load }: PanelProps) {
   const report = result?.identity === identity ? result.report : null;
   const run = async () => {
     if (inFlight.current) return;
-    if (config.provider.mode === "typesafe" && !consent) {
+    if (config.provider.mode !== "simulated" && !consent) {
       setError(
-        "Confirm the TypeSafe transmission and possible API charges first.",
+        `Confirm the ${providerLabel} transmission and possible API charges first.`,
       );
       return;
     }
@@ -95,21 +97,21 @@ export function NaiveReviewPanel({ prepared, config, load }: PanelProps) {
         BriefCheck ·{" "}
         {config.provider.mode === "simulated"
           ? "Simulated demo"
-          : "TypeSafe advisory"}
+          : "Decision Models"}
       </h3>
       <p>
         Review copy against operator-supplied facts before you use the existing
         human decision controls.
       </p>
-      {config.provider.mode === "typesafe" && (
+      {config.provider.mode !== "simulated" && (
         <label>
           <input
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
           />
-          Send this copy and relevant evidence to TypeSafe. API charges may
-          apply.
+          Send this copy and relevant evidence to {providerLabel}. API charges
+          may apply.
         </label>
       )}
       <button type="button" disabled={busy} onClick={() => void run()}>
@@ -127,7 +129,7 @@ export function NaiveReviewPanel({ prepared, config, load }: PanelProps) {
           </strong>
           <p>
             {report.provider.mode === "simulated"
-              ? "Illustrative rules, not measured Jev accuracy. "
+              ? "Illustrative rules, not measured real-model accuracy. "
               : ""}
             No approval has been taken.
           </p>

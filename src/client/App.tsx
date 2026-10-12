@@ -4,6 +4,7 @@ import {
   configSchema,
   excerpts,
   REASONS,
+  PROVIDER_LABELS,
   reviewSchema,
   updateSchema,
   type ProviderIdentity,
@@ -46,6 +47,7 @@ export function App() {
     pretty({ identity: input.identity, currentSite: input.currentSite }),
   );
   const [config, setConfig] = useState<Config | null>(null);
+  const providerLabel = PROVIDER_LABELS[config?.provider.mode ?? "simulated"];
   const [report, setReport] = useState<Report | null>(null);
   const [busy, setBusy] = useState(false);
   const [stale, setStale] = useState(false);
@@ -119,7 +121,7 @@ export function App() {
     }
     if (config.externalTransmission && !consent) {
       setError(
-        "Confirm the TypeSafe data transmission and possible API charge before running.",
+        `Confirm the ${providerLabel} data transmission and possible API charge before running.`,
       );
       return;
     }
@@ -192,7 +194,7 @@ export function App() {
       [
         pretty({
           notice:
-            "Advisory only. No approval taken. Simulation results do not measure Jev accuracy.",
+            "Advisory only. No approval taken. Simulation results do not measure real-model accuracy.",
           ...report,
         }),
       ],
@@ -235,19 +237,19 @@ export function App() {
           </div>
           <aside className="mode-card">
             <span className="mode-label">
-              {config?.provider.mode === "typesafe"
-                ? "LIVE TYPESAFE PROVIDER"
+              {config?.externalTransmission
+                ? "LIVE DECISION MODELS"
                 : "SIMULATED DEMO"}
             </span>
             <strong>
-              {config?.provider.mode === "typesafe"
-                ? "Jev is configured server-side."
+              {config?.externalTransmission
+                ? "Review with a decision model."
                 : "Try the workflow. No key needed."}
             </strong>
             <p>
-              {config?.provider.mode === "typesafe"
+              {config?.externalTransmission
                 ? "Copy and relevant evidence leave this computer when you run a review. API charges may apply."
-                : "Illustrative rules power this demo. They don’t measure Jev’s accuracy or verify real-world facts."}
+                : "Illustrative rules power this demo. They don’t measure real-model accuracy or verify real-world facts."}
             </p>
           </aside>
         </div>
@@ -482,8 +484,8 @@ export function App() {
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
                   />{" "}
-                  I allow this review’s copy and relevant evidence to be sent to
-                  TypeSafe. API charges may apply.
+                  I allow this review’s copy and relevant evidence to be sent to{" "}
+                  {providerLabel}. API charges may apply.
                 </label>
               )}
               <button
@@ -493,8 +495,8 @@ export function App() {
               >
                 {busy
                   ? "Review in progress…"
-                  : config?.provider.mode === "typesafe"
-                    ? "Run TypeSafe review"
+                  : config?.externalTransmission
+                    ? "Run Decision Model review"
                     : "Run simulated review"}
                 <span aria-hidden="true">↗</span>
               </button>
@@ -538,7 +540,7 @@ export function App() {
                     <span className="eyebrow">
                       {report.provider.mode === "simulated"
                         ? "SIMULATED RESULT"
-                        : "TYPESAFE ADVISORY RESULT"}
+                        : "DECISION MODEL ADVISORY RESULT"}
                     </span>
                     <h3>
                       {report.disposition === "unavailable"

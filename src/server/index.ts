@@ -1,14 +1,8 @@
 import { resolve } from "node:path";
 import express from "express";
 import { createApp } from "./app.js";
-import { SimulatedProvider, TypeSafeProvider } from "./providers.js";
-const mode = process.env.BRIEFCHECK_PROVIDER ?? "simulated";
-if (!["simulated", "typesafe"].includes(mode))
-  throw new Error("BRIEFCHECK_PROVIDER must be simulated or typesafe.");
-const provider =
-  mode === "typesafe"
-    ? new TypeSafeProvider(process.env.TYPESAFE_API_KEY ?? "")
-    : new SimulatedProvider();
+import { createProvider } from "./providers.js";
+const provider = createProvider();
 const app = createApp(provider);
 if (process.argv.includes("--dev")) {
   const { createServer } = await import("vite");

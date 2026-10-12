@@ -1,6 +1,16 @@
 import { z } from "zod";
 
 export const MODEL = "jev-1.13.0";
+export const PROVIDER_MODELS = {
+  simulated: "simulated-rules-v1",
+  typesafe: MODEL,
+  subq: "subq-snap-preview",
+} as const;
+export const PROVIDER_LABELS = {
+  simulated: "simulated",
+  typesafe: "TypeSafe",
+  subq: "SubQ",
+} as const;
 export const RUBRIC_VERSION = "briefcheck-1.0";
 export const CONFIDENCE_THRESHOLD = 0.72; // Product routing choice, not a validated accuracy threshold.
 export const SECTION_NAMES = [
@@ -237,7 +247,7 @@ export interface SectionResult {
   issues: Issue[];
 }
 export interface ProviderIdentity {
-  mode: "simulated" | "typesafe";
+  mode: keyof typeof PROVIDER_MODELS;
   requestedModel: string;
   implementation: string;
 }
@@ -309,7 +319,7 @@ export const configSchema = z
   .object({
     provider: z
       .object({
-        mode: z.enum(["simulated", "typesafe"]),
+        mode: z.enum(["simulated", "typesafe", "subq"]),
         requestedModel: z.string().min(1),
         implementation: z.string().min(1),
       })
@@ -321,9 +331,8 @@ export const configSchema = z
   .strict()
   .superRefine((v, ctx) => {
     if (
-      v.externalTransmission !== (v.provider.mode === "typesafe") ||
-      v.provider.requestedModel !==
-        (v.provider.mode === "typesafe" ? MODEL : "simulated-rules-v1")
+      v.externalTransmission !== (v.provider.mode !== "simulated") ||
+      v.provider.requestedModel !== PROVIDER_MODELS[v.provider.mode]
     )
       ctx.addIssue({
         code: "custom",
@@ -341,7 +350,7 @@ export const reportSchema = z
     threshold: z.number().finite().min(0).max(1),
     provider: z
       .object({
-        mode: z.enum(["simulated", "typesafe"]),
+        mode: z.enum(["simulated", "typesafe", "subq"]),
         requestedModel: z.string(),
         implementation: z.string(),
         returnedModels: z.array(z.string()),

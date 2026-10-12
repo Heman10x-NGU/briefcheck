@@ -1,0 +1,375 @@
+{
+  "checkedAt": "2026-10-12T18:41:49.281Z",
+  "fixture": "unsupported",
+  "status": 200,
+  "elapsedMs": 822,
+  "report": {
+    "id": "c318de58-50af-4e6c-bfa1-ae5a4c0b8d6c",
+    "fingerprint": "b46f12235383322af0c7cdfcb2ef012123ac99edcc94385b96fee033b6535319",
+    "evidenceHash": "39b11954eabbba171fb9a6f1482328b23dd76aae8df4fea6e5e22eb4f83e660f",
+    "createdAt": "2026-10-12T18:41:48.469Z",
+    "input": {
+      "identity": {
+        "sessionId": "synthetic-session-01",
+        "toolCallId": "synthetic-call-02",
+        "targetId": "northstar-demo-site",
+        "actionName": "dashboard.update_site"
+      },
+      "currentSite": {
+        "company": "Northstar Studio",
+        "tagline": "Clear websites for small teams.",
+        "tone": "Plain-spoken and specific.",
+        "hero": {
+          "eyebrow": "Independent digital studio",
+          "title": "A clear website. A calmer launch.",
+          "subtitle": "We design and build brochure websites for small professional-service teams.",
+          "cta": "Discuss your project",
+          "secondaryCta": "See our process"
+        },
+        "pricing": {
+          "title": "One focused website",
+          "subtitle": "Scope agreed before we start.",
+          "tiers": [
+            {
+              "name": "Studio website",
+              "price": "$4,800",
+              "cadence": "one-time",
+              "blurb": "A brochure website with up to five pages.",
+              "includes": [
+                "Five pages",
+                "Two revision rounds",
+                "Design and development"
+              ]
+            }
+          ]
+        },
+        "contact": {
+          "title": "Let’s talk",
+          "subtitle": "Tell us about your project.",
+          "email": "hello@northstar.example",
+          "offlineNote": "We reply within two business days."
+        }
+      },
+      "proposedUpdate": {
+        "hero": {
+          "eyebrow": "Independent digital studio",
+          "title": "Guaranteed 3× revenue in 30 days.",
+          "subtitle": "Trusted by 500 clients. The world’s #1 web studio.",
+          "cta": "Discuss your project",
+          "secondaryCta": "See our process"
+        }
+      },
+      "evidence": {
+        "revision": "approved-brief-demo-v1",
+        "tone": "Plain-spoken, specific, and calm. Avoid hype, superlatives and guarantees.",
+        "facts": [
+          {
+            "id": "F1",
+            "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included.",
+            "sections": [
+              "company",
+              "hero",
+              "tagline",
+              "services"
+            ]
+          },
+          {
+            "id": "F2",
+            "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved.",
+            "sections": [
+              "pricing",
+              "hero"
+            ]
+          },
+          {
+            "id": "F3",
+            "text": "Approved contact email: hello@northstar.example. Replies within two business days.",
+            "sections": [
+              "contact"
+            ]
+          },
+          {
+            "id": "F4",
+            "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication.",
+            "sections": [
+              "proof",
+              "hero"
+            ]
+          }
+        ],
+        "exact": [
+          {
+            "path": [
+              "pricing",
+              "tiers",
+              0,
+              "price"
+            ],
+            "expected": "$4,800",
+            "factId": "F2"
+          },
+          {
+            "path": [
+              "pricing",
+              "tiers",
+              0,
+              "cadence"
+            ],
+            "expected": "one-time",
+            "factId": "F2"
+          },
+          {
+            "path": [
+              "contact",
+              "email"
+            ],
+            "expected": "hello@northstar.example",
+            "factId": "F3"
+          }
+        ]
+      }
+    },
+    "rubricVersion": "briefcheck-1.0",
+    "threshold": 0.72,
+    "provider": {
+      "mode": "subq",
+      "requestedModel": "subq-snap-preview",
+      "implementation": "subq-rest-v1",
+      "returnedModels": [
+        "subq-snap-preview"
+      ]
+    },
+    "disposition": "review_required",
+    "humanDecision": "not_taken",
+    "sections": [
+      {
+        "section": "hero",
+        "currentExcerpts": [
+          {
+            "path": "hero.eyebrow",
+            "text": "Independent digital studio"
+          },
+          {
+            "path": "hero.title",
+            "text": "A clear website. A calmer launch."
+          },
+          {
+            "path": "hero.subtitle",
+            "text": "We design and build brochure websites for small professional-service teams."
+          },
+          {
+            "path": "hero.cta",
+            "text": "Discuss your project"
+          },
+          {
+            "path": "hero.secondaryCta",
+            "text": "See our process"
+          }
+        ],
+        "proposedExcerpts": [
+          {
+            "path": "hero.eyebrow",
+            "text": "Independent digital studio"
+          },
+          {
+            "path": "hero.title",
+            "text": "Guaranteed 3× revenue in 30 days."
+          },
+          {
+            "path": "hero.subtitle",
+            "text": "Trusted by 500 clients. The world’s #1 web studio."
+          },
+          {
+            "path": "hero.cta",
+            "text": "Discuss your project"
+          },
+          {
+            "path": "hero.secondaryCta",
+            "text": "See our process"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "F1",
+            "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+          },
+          {
+            "id": "F2",
+            "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+          },
+          {
+            "id": "F4",
+            "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+          }
+        ],
+        "answers": {
+          "support": {
+            "type": "choice",
+            "choice": "contradicted",
+            "confidence": 0.7836857636769613,
+            "probabilities": {
+              "supported": 0.011777112260460854,
+              "unsupported": 0.12474791705608368,
+              "contradicted": 0.837764322757721,
+              "unclear": 0.025710653513669968
+            }
+          },
+          "scope": {
+            "type": "choice",
+            "choice": "expanded",
+            "confidence": 0.9548013806343079,
+            "probabilities": {
+              "within_scope": 0.016189921647310257,
+              "expanded": 0.9698675870895386,
+              "unclear": 0.013942496851086617
+            }
+          },
+          "tone": {
+            "type": "choice",
+            "choice": "misaligned",
+            "confidence": 0.9572683870792389,
+            "probabilities": {
+              "aligned": 0.013793954625725746,
+              "misaligned": 0.9715122580528259,
+              "unclear": 0.01469380035996437
+            }
+          }
+        },
+        "issues": [
+          {
+            "code": "CONTRADICTION",
+            "section": "hero",
+            "path": "hero",
+            "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+            "evidence": [
+              {
+                "id": "F1",
+                "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+              },
+              {
+                "id": "F2",
+                "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+              },
+              {
+                "id": "F4",
+                "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+              }
+            ],
+            "source": "advisory"
+          },
+          {
+            "code": "UNSUPPORTED_CLAIM",
+            "section": "hero",
+            "path": "hero",
+            "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+            "evidence": [
+              {
+                "id": "F1",
+                "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+              },
+              {
+                "id": "F2",
+                "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+              },
+              {
+                "id": "F4",
+                "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+              }
+            ],
+            "source": "advisory"
+          },
+          {
+            "code": "TONE_MISMATCH",
+            "section": "hero",
+            "path": "hero",
+            "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+            "evidence": [
+              {
+                "id": "F1",
+                "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+              },
+              {
+                "id": "F2",
+                "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+              },
+              {
+                "id": "F4",
+                "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+              }
+            ],
+            "source": "advisory"
+          }
+        ]
+      }
+    ],
+    "issues": [
+      {
+        "code": "CONTRADICTION",
+        "section": "hero",
+        "path": "hero",
+        "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+        "evidence": [
+          {
+            "id": "F1",
+            "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+          },
+          {
+            "id": "F2",
+            "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+          },
+          {
+            "id": "F4",
+            "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+          }
+        ],
+        "source": "advisory"
+      },
+      {
+        "code": "UNSUPPORTED_CLAIM",
+        "section": "hero",
+        "path": "hero",
+        "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+        "evidence": [
+          {
+            "id": "F1",
+            "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+          },
+          {
+            "id": "F2",
+            "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+          },
+          {
+            "id": "F4",
+            "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+          }
+        ],
+        "source": "advisory"
+      },
+      {
+        "code": "TONE_MISMATCH",
+        "section": "hero",
+        "path": "hero",
+        "proposedExcerpt": "Independent digital studio\nGuaranteed 3× revenue in 30 days.\nTrusted by 500 clients. The world’s #1 web studio.\nDiscuss your project\nSee our process",
+        "evidence": [
+          {
+            "id": "F1",
+            "text": "Northstar Studio designs and builds brochure websites for small professional-service teams. No ecommerce or paid advertising service is included."
+          },
+          {
+            "id": "F2",
+            "text": "Studio website: $4,800 one-time. Up to five pages, two revision rounds, design and development. Delivery timing is agreed per project; no results or delivery-time guarantees are approved."
+          },
+          {
+            "id": "F4",
+            "text": "No client testimonials, named client logos, customer counts, revenue uplift, awards or performance results have been approved for publication."
+          }
+        ],
+        "source": "advisory"
+      }
+    ],
+    "usage": {
+      "inputTokens": 851,
+      "outputTokens": 0
+    }
+  }
+}
