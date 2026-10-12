@@ -238,12 +238,12 @@ export function App() {
           <aside className="mode-card">
             <span className="mode-label">
               {config?.externalTransmission
-                ? `LIVE ${providerLabel.toUpperCase()} PROVIDER`
+                ? "LIVE DECISION MODELS"
                 : "SIMULATED DEMO"}
             </span>
             <strong>
               {config?.externalTransmission
-                ? `${config.provider.mode === "subq" ? "SubQ Snap" : "Jev"} is configured server-side.`
+                ? "Review with a decision model."
                 : "Try the workflow. No key needed."}
             </strong>
             <p>
@@ -496,7 +496,7 @@ export function App() {
                 {busy
                   ? "Review in progress…"
                   : config?.externalTransmission
-                    ? `Run ${providerLabel} review`
+                    ? "Run Decision Model review"
                     : "Run simulated review"}
                 <span aria-hidden="true">↗</span>
               </button>
@@ -540,7 +540,7 @@ export function App() {
                     <span className="eyebrow">
                       {report.provider.mode === "simulated"
                         ? "SIMULATED RESULT"
-                        : `${PROVIDER_LABELS[report.provider.mode].toUpperCase()} ADVISORY RESULT`}
+                        : "DECISION MODEL ADVISORY RESULT"}
                     </span>
                     <h3>
                       {report.disposition === "unavailable"

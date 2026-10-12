@@ -1,12 +1,18 @@
 # BriefCheck
 
-A small, local-first review workbench for proposed agency website-copy updates. Compare the current copy, a pending whole-section replacement, and operator-approved facts. Get deterministic constraint checks plus bounded, per-section advisory signals before a human makes the real decision.
+A small, local-first review workbench for proposed agency website-copy updates. Compare the current copy, a pending whole-section replacement, and operator-approved facts. Get exact checks in code plus advisory judgments from decision models before a human makes the real decision.
+
+For example, if the approved price is $2,500 and proposed copy says $1,500, an exact constraint flags the mismatch. A decision model separately checks whether claims are supported, promises have expanded, and the tone fits the brief. BriefCheck uses hosted decision models; it does not train or supply its own model.
 
 **Default: an explicitly labelled simulator. No API key, network inference, paid service, signup, database, or hosting is needed.** This is a working prototype, not a factuality guarantee, approval engine, prompt-injection defense, or installed Vetta/Naïve integration.
 
+![BriefCheck simulator comparing an invented revenue claim with the supplied evidence](docs/images/briefcheck-demo.jpg)
+
+*Fictional example in simulator mode. The screenshot illustrates the review workflow; its confidence values are synthetic. A recorded live-provider connection test is linked below.*
+
 ## Run locally
 
-Node **22.12+** (tested with 24.19.0) and npm. From this directory:
+Node **22.12+** (most recent local verification: 22.21.0) and npm. From this directory:
 
 ```sh
 npm ci
@@ -20,9 +26,9 @@ If the environment cannot write npm's default cache, use `npm ci --cache /tmp/br
 
 ## Try the workflow
 
-1. Choose one of four fictional Northstar Studio cases: careful rewrite, invented result, changed pricing, or instructions embedded in copy.
-2. Edit proposed copy, approved evidence, or the action/current-site context. Evidence includes a revision, per-section facts, voice guidance, and optional exact path/value constraints.
-3. Run the clearly labelled simulated review. Inspect fixed reason labels, actual input excerpts, and the actual facts supplied for each section. Evidence is contextual, not a generated explanation or proof of causation.
+1. Choose one of four fictional Northstar Studio cases: careful rewrite, invented result, changed pricing, or instructions embedded in copy. These are demonstration scenarios, not an exhaustive list of issues the app can review.
+2. Use **Copy comparison** to edit the replacement beside the current copy, **Approved evidence** to supply the facts it should respect, and **Action & current site** to inspect the pending action and existing site. The comparison shows before and after. Approved evidence means facts supplied by the operator, not facts independently verified or approved by BriefCheck.
+3. Click **Run simulated review**, or **Run Decision Model review** when a live provider is configured. Inspect fixed reason labels such as exact mismatch or contradiction, actual input excerpts, and the facts supplied for each section. Evidence is contextual, not a generated explanation or proof of causation.
 4. Export the evaluated JSON snapshot if useful. Every edit invalidates the visible report; an earlier request cannot attach its result to a newer input. No approval or publishing action exists.
 
 The simulator uses a few transparent illustrative pattern rules. It will miss unsupported claims outside those patterns. Its displayed distributions/confidences are synthetic and **do not measure Jev or SubQ accuracy**. A no-flags result remains an invitation to inspect the evidence, never certification.
@@ -54,7 +60,7 @@ SUBQ_API_KEY=your-own-server-key
 PORT=3000
 ```
 
-Restart the server and reload the browser. The UI names the selected provider and requires explicit transmission/cost acknowledgment for each snapshot. Setting a key alone does not enable real calls. Each provider reads only its own key variable; a SubQ key is never sent to TypeSafe. Exported environment variables override `.env`, so remove a previous shell provider override when switching. Do not put a key in any `VITE_*` variable, UI form, source file, shared screenshot, or report. `.env` is ignored.
+Restart the server and reload the browser. The main UI uses the label **Decision Models**; the consent text identifies the actual provider and requires explicit transmission/cost acknowledgment for each snapshot. SubQ remains the provider in the example above. Setting a key alone does not enable real calls. Each provider reads only its own key variable; a SubQ key is never sent to TypeSafe. Exported environment variables override `.env`, so remove a previous shell provider override when switching. Do not put a key in any `VITE_*` variable, UI form, source file, shared screenshot, or report. `.env` is ignored.
 
 Each review makes one request per eligible section, sequentially, at most six requests, with three questions per request. There are no automatic retries, redirects, or fallback to simulation. Authentication/model-access errors, insufficient credits (402), rate limits, timeouts, non-JSON, missing/invalid answers, unexpected models, oversized responses, and malformed probability distributions fail unavailable. Error bodies and keys are never logged or returned.
 

@@ -97,7 +97,7 @@ export function NaiveReviewPanel({ prepared, config, load }: PanelProps) {
         BriefCheck ·{" "}
         {config.provider.mode === "simulated"
           ? "Simulated demo"
-          : `${providerLabel} advisory`}
+          : "Decision Models"}
       </h3>
       <p>
         Review copy against operator-supplied facts before you use the existing

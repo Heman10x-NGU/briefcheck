@@ -293,8 +293,8 @@ describe("Independent DOM-emulated user flows", () => {
     reviewReply = async () => response({ report: liveReport });
     configReply = async () => response(live);
     await mount();
-    expect(text()).toContain(`LIVE ${label.toUpperCase()} PROVIDER`);
-    await click(`Run ${label} review`);
+    expect(text()).toContain("LIVE DECISION MODELS");
+    await click("Run Decision Model review");
     expect(reviewRequests()).toHaveLength(0);
     expect(text()).toContain(`Confirm the ${label} data transmission`);
     const consent = container.querySelector(
@@ -304,12 +304,12 @@ describe("Independent DOM-emulated user flows", () => {
       consent.click();
       await tick();
     });
-    await click(`Run ${label} review`);
+    await click("Run Decision Model review");
     expect(reviewRequests()).toHaveLength(1);
     expect(reviewRequests()[0].init?.headers).toMatchObject({
       "X-BriefCheck-Live-Consent": "1",
     });
-    expect(text()).toContain(`${label.toUpperCase()} ADVISORY RESULT`);
+    expect(text()).toContain("DECISION MODEL ADVISORY RESULT");
     expect(text()).toContain("Human decision: not taken");
     await fill("hero.title", "New text");
     expect(
